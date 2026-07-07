@@ -1,0 +1,129 @@
+{
+  "app": {
+    "title": "Smart Murojaat",
+    "subtitle": "Hákimliktiń puqaralar múracaatları portalı"
+  },
+  "auth": {
+    "login": "Sistemama kiriw",
+    "register": "Dizimnen ótiw",
+    "logout": "Shıǵıw",
+    "username": "Paydalanıwshı atı",
+    "password": "Parol",
+    "confirmPassword": "Paroldı tastıyıqlaw",
+    "firstName": "Atı",
+    "lastName": "Familiyası",
+    "patronymic": "Ákesiniń atı",
+    "email": "Elektron pochta",
+    "phone": "Telefon nomeri",
+    "dob": "Tuwılǵan sánesi",
+    "region": "Rayon / Aymaq",
+    "address": "Tolıq mánzili / Máhálle",
+    "passport": "Pasport seriyası hám nomeri (Májbúriy emes)",
+    "noAccount": "Dizimnen ótpegenbe?",
+    "hasAccount": "Dizimnen ótkenbe?",
+    "registerTitle": "Puqaralardı dizimge alıw portalı",
+    "loginTitle": "Smart Murojaat sistemasına kiriw",
+    "validation": {
+      "required": "Bul maydandı toldırıw májbúriy",
+      "passwordMismatch": "Paroller sáykes kelmedi",
+      "phoneFormat": "Telefon nomeri +998XXXXXXXXX formatında bolıwı kerek",
+      "passwordLength": "Parol keminde 6 belgiden ibarat bolıwı kerek"
+    }
+  },
+  "role": {
+    "citizen": "Puqara",
+    "admin": "Admin / Qánge",
+    "super_admin": "Hákim (Super Admin)"
+  },
+  "nav": {
+    "dashboard": "Basqarıw paneli",
+    "appeals": "Barlıq múracaatlar",
+    "myAppeals": "Meniń múracaatlarım",
+    "submit": "Múracaat jollaw",
+    "stats": "Analitika hám statistika",
+    "departments": "Bólimler"
+  },
+  "status": {
+    "new": "Jańa",
+    "under_review": "Qaralıp atır",
+    "in_progress": "Processte",
+    "postponed": "Keyinge qaldırıw",
+    "resolved": "Mashqala sheshildi",
+    "rejected": "Biykarlandı",
+    "unresolvable": "Mashqala sheshiliwi múmkin emes"
+  },
+  "category": {
+    "infrastructure": "Infratuzılma / Jollar",
+    "utilities": "Kommunal xızmetler / Tok / Suw",
+    "social_services": "Sociallıq xızmetler / Járdem",
+    "healthcare": "Densaulıqtı saqlaw",
+    "education": "Bilimlendiriw",
+    "corruption_legal": "Yuridikalıq / Korrupsiya shaǵımı",
+    "housing": "Turaq jay máseleleri",
+    "environment": "Atraf-ortalıq hám ekologiya",
+    "other": "Basqa máseleler"
+  },
+  "urgency": {
+    "low": "Tómen",
+    "medium": "Orta",
+    "high": "Joqarı",
+    "critical": "Krıtikalıq"
+  },
+  "sentiment": {
+    "neutral": "Neytral",
+    "frustrated": "Narazı / Qapa",
+    "angry": "Ashıwlanǵan",
+    "desperate": "Úmitsiz"
+  },
+  "citizen": {
+    "welcome": "Xosh keldińiz",
+    "submitTitle": "Jańa múracaat jollaw",
+    "appealPlaceholder": "Mashqala ya shaǵımıńızdı tolıq jazıń...",
+    "addressPlaceholder": "Anıq mánzil ya máhálleni jazıń...",
+    "attachment": "Súret qosıw (Májbúriy emes)",
+    "dragDrop": "Súretti osı jerge taslań ya tańlaw ushın basıń",
+    "submitting": "Múracaat Hákimlikke jollanbaqta...",
+    "submitSuccess": "Múracaat tabıslı qabıllandı! Avtomatikalıq klastan túptew ushın Gemini AI tahlili qollanıldı.",
+    "myAppealsTitle": "Múracaatlarım tariyxı hám jaǵdayı",
+    "emptyAppeals": "Siz ele bırde múracaat jollamadıńız.",
+    "statusStepper": "Múracaat jaǵdayınıń basqıshları",
+    "aiAnalysisNotice": "Gemini AI tárepinen avtomatikalıq túrde klassifikaciyalandı hám prioriteti anıqlandı",
+    "publicResponse": "Hákimliktiń rásmiy juwabı"
+  },
+  "admin": {
+    "panelTitle": "Hákimlik Múracaatlar Basqarıw Paneli",
+    "welcome": "Xosh keldińiz, Masul xızmetker",
+    "statsOverview": "Ulıwma statistika",
+    "totalAppeals": "Jámi múracaatlar",
+    "resolvedAppeals": "Sheshilgenler",
+    "pendingAppeals": "Qaralıp atırǵanlar",
+    "avgResolution": "Ortasha sheshiw waqtı",
+    "urgencyDistribution": "Prioritet boyınsha",
+    "categoryBreakdown": "Tarawlar boyınsha tahlil",
+    "trends": "Múracaatlar dinamikası",
+    "leaderboard": "Bólimler nátiyjeliligi",
+    "completedAppeals": "Sheshilgen",
+    "unresolvedAppeals": "Kutilmekte",
+    "oldestUnresolved": "Eń kóp kutilip atırǵan múracaatlar",
+    "assignedTo": "Masul bólim",
+    "assignDept": "Bólimge biriktiriw",
+    "internalNotes": "Hákimliktiń ishki qatları",
+    "writeResponse": "Puqaraǵa jámiyetlik juwap jazıw",
+    "updateStatus": "Múracaat jaǵdayın jańalaw",
+    "saveChanges": "Saqlaw hám jańalaw",
+    "exportCsv": "CSV formatında júklep alıw",
+    "filterCategory": "Taraw boyınsha",
+    "filterStatus": "Jaǵdayı boyınsha",
+    "filterUrgency": "Prioritet boyınsha",
+    "searchPlaceholder": "Puqara atı, telefonı ya tekst boyınsha izlew...",
+    "details": "Múracaat tolıq maǵlıwmatı",
+    "aiInsights": "Gemini AI Avtomatlandırıw Analizi",
+    "aiSummary": "AI Avto-Konspekt",
+    "suggestedDept": "AI tárepinen usınıs etilgen bólim",
+    "sentimentLabel": "Puqara keypiyatı",
+    "timeline": "Tariyxı hám háreketler jurnalı",
+    "noDepartment": "Biriktirilmegen",
+    "days": "kún",
+    "hours": "saat"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Smart Murojaat",
+  "description": "A citizen appeals and complaints management system for the regional Hokimiyat, featuring automated Gemini AI analysis, role-based workflows, and statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

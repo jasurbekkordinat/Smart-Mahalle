@@ -1,0 +1,129 @@
+{
+  "app": {
+    "title": "Smart Murojaat",
+    "subtitle": "Citizen Appeals Portal of the Hokimiyat"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Register",
+    "logout": "Log Out",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name / Surname",
+    "patronymic": "Patronymic / Middle Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "dob": "Date of Birth",
+    "region": "Region / District",
+    "address": "Full Address / Mahalla",
+    "passport": "Passport Series & Number (Optional)",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerTitle": "Citizen Registration Portal",
+    "loginTitle": "Sign In to Smart Murojaat",
+    "validation": {
+      "required": "This field is required",
+      "passwordMismatch": "Passwords do not match",
+      "phoneFormat": "Phone must be in +998XXXXXXXXX format",
+      "passwordLength": "Password must be at least 6 characters"
+    }
+  },
+  "role": {
+    "citizen": "Citizen",
+    "admin": "Admin / Staff",
+    "super_admin": "Hokim (Super Admin)"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "appeals": "All Appeals",
+    "myAppeals": "My Appeals",
+    "submit": "Submit Appeal",
+    "stats": "Analytics & Statistics",
+    "departments": "Departments"
+  },
+  "status": {
+    "new": "New",
+    "under_review": "Under Review",
+    "in_progress": "In Progress",
+    "postponed": "Postponed",
+    "resolved": "Problem Solved",
+    "rejected": "Rejected",
+    "unresolvable": "Unresolvable"
+  },
+  "category": {
+    "infrastructure": "Infrastructure / Roads",
+    "utilities": "Utilities / Electricity / Water",
+    "social_services": "Social Services / Welfare",
+    "healthcare": "Healthcare",
+    "education": "Education",
+    "corruption_legal": "Legal / Corruption Complaint",
+    "housing": "Housing / Property",
+    "environment": "Environment / Ecology",
+    "other": "Other"
+  },
+  "urgency": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  },
+  "sentiment": {
+    "neutral": "Neutral",
+    "frustrated": "Frustrated",
+    "angry": "Angry",
+    "desperate": "Desperate"
+  },
+  "citizen": {
+    "welcome": "Welcome",
+    "submitTitle": "Submit a New Appeal",
+    "appealPlaceholder": "Describe your issue or complaint in detail...",
+    "addressPlaceholder": "Enter exact address or mahalla...",
+    "attachment": "Attach Photo (Optional)",
+    "dragDrop": "Drag and drop an image here, or click to select",
+    "submitting": "Submitting appeal to Hokimiyat...",
+    "submitSuccess": "Appeal submitted successfully! Handled by Gemini AI for automatic classification.",
+    "myAppealsTitle": "Track My Appeals",
+    "emptyAppeals": "You have not submitted any appeals yet.",
+    "statusStepper": "Appeal Status Lifecycle",
+    "aiAnalysisNotice": "Automatically categorized and prioritized by Gemini AI",
+    "publicResponse": "Hokimiyat Public Response"
+  },
+  "admin": {
+    "panelTitle": "Hokimiyat Appeals Admin Panel",
+    "welcome": "Welcome back, Officer",
+    "statsOverview": "Overview Statistics",
+    "totalAppeals": "Total Appeals",
+    "resolvedAppeals": "Resolved Appeals",
+    "pendingAppeals": "Pending Appeals",
+    "avgResolution": "Avg. Resolution Time",
+    "urgencyDistribution": "Urgency Distribution",
+    "categoryBreakdown": "Appeals by Category",
+    "trends": "Appeals Trends over Time",
+    "leaderboard": "Department Performance",
+    "completedAppeals": "Resolved",
+    "unresolvedAppeals": "Pending",
+    "oldestUnresolved": "Oldest Unresolved Appeals",
+    "assignedTo": "Assigned Department",
+    "assignDept": "Assign Department",
+    "internalNotes": "Internal Hokimiyat Notes",
+    "writeResponse": "Write Public Response to Citizen",
+    "updateStatus": "Update Appeal Status",
+    "saveChanges": "Save & Update",
+    "exportCsv": "Export to CSV",
+    "filterCategory": "Filter Category",
+    "filterStatus": "Filter Status",
+    "filterUrgency": "Filter Urgency",
+    "searchPlaceholder": "Search by citizen name, phone, or text...",
+    "details": "Appeal Details",
+    "aiInsights": "Gemini AI Automation Insights",
+    "aiSummary": "AI Auto-Summary",
+    "suggestedDept": "AI Suggested Department",
+    "sentimentLabel": "Citizen Sentiment",
+    "timeline": "Timeline & Audit Log",
+    "noDepartment": "Unassigned",
+    "days": "days",
+    "hours": "hours"
+  }
+}

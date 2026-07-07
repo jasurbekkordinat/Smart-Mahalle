@@ -1,0 +1,129 @@
+{
+  "app": {
+    "title": "Smart Murojaat",
+    "subtitle": "Hokimiyatning fuqarolar murojaatlari portali"
+  },
+  "auth": {
+    "login": "Tizimga kirish",
+    "register": "Ro'yxatdan o'tish",
+    "logout": "Chiqish",
+    "username": "Foydalanuvchi nomi",
+    "password": "Parol",
+    "confirmPassword": "Parolni tasdiqlash",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "patronymic": "Sharifi / Otasining ismi",
+    "email": "Elektron pochta",
+    "phone": "Telefon raqami",
+    "dob": "Tug'ilgan sana",
+    "region": "Tuman / Hudud",
+    "address": "To'liq manzili / Mahalla",
+    "passport": "Pasport seriyasi va raqami (Majburiy emas)",
+    "noAccount": "Hisobingiz yo'qmi?",
+    "hasAccount": "Hisobingiz bormi?",
+    "registerTitle": "Fuqarolarni ro'yxatdan o'tkazish portali",
+    "loginTitle": "Smart Murojaat tizimiga kirish",
+    "validation": {
+      "required": "Ushbu maydon to'ldirilishi majburiy",
+      "passwordMismatch": "Parollar mos kelmadi",
+      "phoneFormat": "Telefon raqami +998XXXXXXXXX formatida bo'lishi kerak",
+      "passwordLength": "Parol kamida 6 ta belgidan iborat bo'lishi kerak"
+    }
+  },
+  "role": {
+    "citizen": "Fuqaro",
+    "admin": "Admin / Xodim",
+    "super_admin": "Hokim (Super Admin)"
+  },
+  "nav": {
+    "dashboard": "Boshqaruv paneli",
+    "appeals": "Barcha murojaatlar",
+    "myAppeals": "Mening murojaatlarim",
+    "submit": "Murojaat yuborish",
+    "stats": "Tahlil va statistika",
+    "departments": "Bo'limlar"
+  },
+  "status": {
+    "new": "Yangi",
+    "under_review": "Ko'rib chiqilmoqda",
+    "in_progress": "Jarayonda",
+    "postponed": "Keyinga qoldirish",
+    "resolved": "Muammo hal qilindi",
+    "rejected": "Rad etildi",
+    "unresolvable": "Muammo hal qilinib bo'linmaydi"
+  },
+  "category": {
+    "infrastructure": "Infratuzilma / Yo'llar",
+    "utilities": "Kommunal xizmatlar / Elektr / Suv",
+    "social_services": "Ijtimoiy xizmatlar / Yordam",
+    "healthcare": "Sog'liqni saqlash",
+    "education": "Ta'lim",
+    "corruption_legal": "Huquqiy / Korrupsiya shikoyati",
+    "housing": "Uy-joy masalalari",
+    "environment": "Atrof-muhit va ekologiya",
+    "other": "Boshqa masalalar"
+  },
+  "urgency": {
+    "low": "Past",
+    "medium": "O'rta",
+    "high": "Yuqori",
+    "critical": "Kritik"
+  },
+  "sentiment": {
+    "neutral": "Neytral",
+    "frustrated": "Norozi / Xafa",
+    "angry": "G'azablangan",
+    "desperate": "Umidsiz"
+  },
+  "citizen": {
+    "welcome": "Xush kelibsiz",
+    "submitTitle": "Yangi murojaat yuborish",
+    "appealPlaceholder": "Muammo yoki shikoyatingizni batafsil tasvirlab bering...",
+    "addressPlaceholder": "Aniq manzil yoki mahallani kiriting...",
+    "attachment": "Rasm ilova qilish (Majburiy emas)",
+    "dragDrop": "Rasmni shu yerga tashlang yoki tanlash uchun bosing",
+    "submitting": "Murojaat Hokimiyatga yuborilmoqda...",
+    "submitSuccess": "Murojaat muvaffaqiyatli qabul qilindi! Avtomatik tasniflash uchun Gemini AI tahlili ishlatildi.",
+    "myAppealsTitle": "Murojaatlarim tarixi va holati",
+    "emptyAppeals": "Siz hali biron bir murojaat yubormagansiz.",
+    "statusStepper": "Murojaat holati bosqichlari",
+    "aiAnalysisNotice": "Gemini AI tomonidan avtomatik ravishda tasniflandi va ustuvorligi aniqlandi",
+    "publicResponse": "Hokimiyatning rasmiy javobi"
+  },
+  "admin": {
+    "panelTitle": "Hokimiyat Murojaatlar Boshqaruv Paneli",
+    "welcome": "Xush kelibsiz, Mas'ul xodim",
+    "statsOverview": "Umumiy statistika",
+    "totalAppeals": "Jami murojaatlar",
+    "resolvedAppeals": "Hal qilinganlar",
+    "pendingAppeals": "Ko'rib chiqilayotganlar",
+    "avgResolution": "O'rtacha hal qilish vaqti",
+    "urgencyDistribution": "Ustuvorlik darajasi bo'yicha",
+    "categoryBreakdown": "Sohalar bo'yicha tahlil",
+    "trends": "Murojaatlar dinamikasi",
+    "leaderboard": "Bo'limlar samaradorligi",
+    "completedAppeals": "Hal qilingan",
+    "unresolvedAppeals": "Kutilayotgan",
+    "oldestUnresolved": "Eng uzoq kutilayotgan murojaatlar",
+    "assignedTo": "Mas'ul bo'lim",
+    "assignDept": "Bo'limga biriktirish",
+    "internalNotes": "Hokimiyat ichki qaydlari",
+    "writeResponse": "Fuqaroga ommaviy javob yozish",
+    "updateStatus": "Murojaat holatini yangilash",
+    "saveChanges": "Saqlash va yangilash",
+    "exportCsv": "CSV formatda yuklash",
+    "filterCategory": "Soha bo'yicha",
+    "filterStatus": "Holat bo'yicha",
+    "filterUrgency": "Ustuvorlik bo'yicha",
+    "searchPlaceholder": "Fuqaro ismi, telefoni yoki matni bo'yicha qidirish...",
+    "details": "Murojaat tafsilotlari",
+    "aiInsights": "Gemini AI Avtomatlashtirish Tahlili",
+    "aiSummary": "AI Avto-Konspekt",
+    "suggestedDept": "AI tomonidan tavsiya etilgan bo'lim",
+    "sentimentLabel": "Fuqaro kayfiyati",
+    "timeline": "Tarix va harakatlar jurnali",
+    "noDepartment": "Biriktirilmagan",
+    "days": "kun",
+    "hours": "soat"
+  }
+}
