@@ -1,292 +1,342 @@
-import { useState } from "react";
-import { useLanguage } from "../i18n/LanguageContext.js";
-import { Appeal, AppealCategory, AppealStatus, UrgencyLevel } from "../types.js";
-import { Search, Filter, Download, ArrowUpDown, ChevronRight, Eye, AlertTriangle } from "lucide-react";
+import { GoogleGenAI, Type } from "@google/genai";
+import { AppealCategory, UrgencyLevel, SentimentType, TranslatedFields, MultiLanguageTranslation } from "../src/types.js";
 
-interface AdminAppealsProps {
-  appeals: Appeal[];
-  onReviewAppeal: (appeal: Appeal) => void;
-  filters: {
-    category: string;
-    setCategory: (val: string) => void;
-    status: string;
-    setStatus: (val: string) => void;
-    urgency: string;
-    setUrgency: (val: string) => void;
-    region: string;
-    setRegion: (val: string) => void;
-    search: string;
-    setSearch: (val: string) => void;
-  };
+// Initialize the Google Gen AI SDK
+let aiClient: GoogleGenAI | null = null;
+
+function getAiClient(): GoogleGenAI | null {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn("GEMINI_API_KEY environment variable is not set. Gemini services will use mock analyzer.");
+      return null;
+    }
+    aiClient = new GoogleGenAI({
+      apiKey: apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+  }
+  return aiClient;
 }
 
-export default function AdminAppeals({ appeals, onReviewAppeal, filters }: AdminAppealsProps) {
-  const { t, language } = useLanguage();
-
-  const categories = Array.from(new Set(appeals.map(a => a.category).filter(Boolean)));
-
-  const statuses: AppealStatus[] = ["new", "under_review", "in_progress", "postponed", "resolved", "rejected", "unresolvable"];
-  const urgencies: UrgencyLevel[] = ["low", "medium", "high", "critical"];
-
-  const URGENCY_COLORS: Record<string, string> = {
-    low: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    medium: "bg-blue-50 text-blue-700 border-blue-100",
-    high: "bg-amber-50 text-amber-700 border-amber-100",
-    critical: "bg-red-50 text-red-700 border-red-100 animate-pulse"
-  };
-
-  const STATUS_COLORS: Record<string, string> = {
-    new: "bg-slate-100 text-slate-700 border-slate-200",
-    under_review: "bg-purple-100 text-purple-700 border-purple-200",
-    in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    postponed: "bg-amber-100 text-amber-800 border-amber-200",
-    resolved: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    rejected: "bg-rose-100 text-rose-800 border-rose-200",
-    unresolvable: "bg-red-100 text-red-800 border-red-200"
-  };
-
-  const SENTIMENT_LABELS: Record<string, string> = {
-    neutral: "Neutral",
-    frustrated: "Frustrated",
-    angry: "Angry",
-    desperate: "Desperate"
-  };
-
-  const SENTIMENT_COLORS: Record<string, string> = {
-    neutral: "bg-slate-50 text-slate-600 border-slate-200",
-    frustrated: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    angry: "bg-orange-50 text-orange-700 border-orange-200",
-    desperate: "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
-  };
-
-  // Convert appeals array to CSV data string and trigger browser download
-  const handleExportCSV = () => {
-    if (appeals.length === 0) return;
-
-    // Header row
-    const headers = [
-      "Appeal ID",
-      "Citizen Name",
-      "Citizen Phone",
-      "Region",
-      "Address",
-      "Description",
-      "Category",
-      "Urgency",
-      "Sentiment",
-      "Status",
-      "AI Summary",
-      "Created At"
-    ];
-
-    // Map each appeal to a row
-    const rows = appeals.map(a => [
-      a.id,
-      `"${a.citizenName.replace(/"/g, '""')}"`,
-      a.citizenPhone,
-      a.citizenRegion || "Nukus",
-      `"${a.address.replace(/"/g, '""')}"`,
-      `"${a.description.replace(/"/g, '""')}"`,
-      a.category,
-      a.urgency,
-      a.sentiment,
-      a.status,
-      `"${(a.aiSummary || "").replace(/"/g, '""')}"`,
-      a.createdAt
-    ]);
-
-    const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Smart_Murojaat_Export_${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div id="admin-appeals-root" className="space-y-6 animate-in fade-in duration-200">
-      {/* Top action header */}
-      {/* Advanced Filters Block */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
-          {/* Search */}
-          <div className="relative md:col-span-1">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={filters.search}
-              onChange={e => filters.setSearch(e.target.value)}
-              placeholder="Search citizens, ID, keyword..."
-              className="pl-9 pr-4 w-full rounded-lg border border-slate-200 py-2 text-xs focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-hidden transition text-slate-950 placeholder-slate-400"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <select
-              value={filters.status}
-              onChange={e => filters.setStatus(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 py-2 px-3 text-xs focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-hidden transition text-slate-950"
-            >
-              <option value="">All Statuses</option>
-              {statuses.map(s => (
-                <option key={s} value={s}>{t(`status.${s}`)}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Category Filter */}
-          <div>
-            <select
-              value={filters.category}
-              onChange={e => filters.setCategory(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 py-2 px-3 text-xs focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-hidden transition text-slate-950"
-            >
-              <option value="">All Categories</option>
-              {categories.map(c => (
-                <option key={c} value={c}>
-                  {t(`category.${c}`) !== `category.${c}` ? t(`category.${c}`) : c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Urgency Filter */}
-          <div>
-            <select
-              value={filters.urgency}
-              onChange={e => filters.setUrgency(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 py-2 px-3 text-xs focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-hidden transition text-slate-950"
-            >
-              <option value="">All Urgencies</option>
-              {urgencies.map(u => (
-                <option key={u} value={u}>{t(`urgency.${u}`)}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Filters Clear Check */}
-        {(filters.search || filters.status || filters.category || filters.urgency) && (
-          <div className="flex justify-between items-center text-xs text-slate-500 bg-slate-50 p-2 px-3 rounded-lg">
-            <span>Found {appeals.length} matches based on active filters</span>
-            <button
-              onClick={() => {
-                filters.setSearch("");
-                filters.setStatus("");
-                filters.setCategory("");
-                filters.setUrgency("");
-              }}
-              className="text-blue-600 font-semibold hover:underline cursor-pointer"
-            >
-              Clear all filters
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Appeals Grid Table */}
-      {appeals.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center text-slate-400">
-          <Filter className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-          <p className="text-sm font-semibold">No appeals found matching criteria.</p>
-          <p className="text-xs mt-1">Try relaxing your search terms or filter constraints.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-400 uppercase font-semibold text-[10px] tracking-wider bg-slate-50/50">
-                  <th className="py-4 px-6">ID / Date</th>
-                  <th className="py-4 px-6">Citizen Profile</th>
-                  <th className="py-4 px-6">Appeal Details</th>
-                  <th className="py-4 px-6">AI Sentiment</th>
-                  <th className="py-4 px-6">Urgency</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {appeals.map(appeal => (
-                  <tr key={appeal.id} className="hover:bg-slate-50/40 transition">
-                    {/* ID / Date */}
-                    <td className="py-4 px-6 space-y-1">
-                      <span className="font-mono font-bold text-slate-900 block">#{appeal.id.toUpperCase()}</span>
-                      <span className="text-[10px] text-slate-400 block font-medium">
-                        {new Date(appeal.createdAt).toLocaleDateString()}
-                      </span>
-                    </td>
-
-                    {/* Citizen Profile */}
-                    <td className="py-4 px-6 space-y-1">
-                      <p className="font-semibold text-slate-900">{appeal.citizenName}</p>
-                      <p className="text-[10px] text-slate-400 font-medium">{appeal.citizenPhone}</p>
-                      <p className="text-[10px] text-slate-500 font-medium flex items-center space-x-1">
-                        <span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full" />
-                        <span>{appeal.citizenRegion || "Nukus"}</span>
-                      </p>
-                    </td>
-
-                    {/* Description & Category */}
-                    <td className="py-4 px-6 max-w-sm space-y-1.5">
-                      <p className="text-slate-800 line-clamp-2 leading-relaxed text-[11px]">
-                        {appeal.translations?.[language]?.description || appeal.description}
-                      </p>
-                      <div className="flex items-center space-x-1.5 flex-wrap">
-                        <span className="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-semibold capitalize border border-slate-200/60">
-                          {appeal.translations?.[language]?.category || (t(`category.${appeal.category}`) !== `category.${appeal.category}` ? t(`category.${appeal.category}`) : appeal.category)}
-                        </span>
-                        {appeal.imageUrl && (
-                          <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold flex items-center space-x-1">
-                            <span>Image attached</span>
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Sentiment Analysis */}
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-bold border px-2.5 py-1 rounded-full capitalize ${SENTIMENT_COLORS[appeal.sentiment] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
-                        {t(`sentiment.${appeal.sentiment}`) !== `sentiment.${appeal.sentiment}` ? t(`sentiment.${appeal.sentiment}`) : (SENTIMENT_LABELS[appeal.sentiment] || appeal.sentiment)}
-                      </span>
-                    </td>
-
-                    {/* Urgency Level */}
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full capitalize border ${URGENCY_COLORS[appeal.urgency]}`}>
-                        {t(`urgency.${appeal.urgency}`)}
-                      </span>
-                    </td>
-
-                    {/* Status Badge */}
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full capitalize border ${STATUS_COLORS[appeal.status]}`}>
-                        {t(`status.${appeal.status}`)}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => onReviewAppeal(appeal)}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 shadow-2xs"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Review</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+export interface GeminiAnalysisResult {
+  category: string;
+  urgency: UrgencyLevel;
+  sentiment: SentimentType;
+  summary: string;
+  suggested_department: string;
+  isFlaggedInappropriate: boolean;
 }
+
+export async function analyzeAppealText(text: string, existingCategories: string[] = []): Promise<GeminiAnalysisResult> {
+  const defaultFallback: GeminiAnalysisResult = {
+    category: "Boshqa muammolar",
+    urgency: "medium",
+    sentiment: "neutral",
+    summary: text.length > 100 ? text.substring(0, 100) + "..." : text,
+    suggested_department: "dept_utilities",
+    isFlaggedInappropriate: false
+  };
+
+  const client = getAiClient();
+  if (!client) {
+    return defaultFallback;
+  }
+
+  const existingCatsStr = existingCategories.length > 0 
+    ? existingCategories.join(", ") 
+    : "Suv muammosi, Yo'l muammosi, Elektr ta'minoti, Gaz ta'minoti, Sog'liqni saqlash, Maktab va ta'lim, Uy-joy, Ekologiya";
+
+  const systemInstruction = `You are a professional civic-tech civil servant assistant for the regional governor's office (Hokimiyat) of Shomanay District, Karakalpakstan, Uzbekistan.
+Your job is to analyze incoming citizen appeals ("murojaat") written in either Uzbek, Karakalpak, Russian, or English.
+
+You must perform 6 actions:
+1. Detect or create a standardized category (main topic) IN UZBEK for the admin panel:
+   - You are provided a list of already existing categories: [${existingCatsStr}].
+   - If the new appeal's core issue belongs to or matches semantically with one of these existing categories, you MUST return that exact category name. Be smart and do semantic matching (e.g. "suv oqmayapti", "vodoprovod quvuri", "ichimlik suvi" should all map to "Suv muammosi" if it exists in the list).
+   - If the core issue is totally new and does not fit any existing category, you must create a new concise category name IN UZBEK (e.g., "Yo'l muammosi", "Suv muammosi", "Elektr ta'minoti", "Gaz ta'minoti", "Sog'liqni saqlash", "Ijtimoiy yordam", "Chiqindi muammosi", "Uy-joy"). Keep it 2-3 words max, capitalized.
+
+2. Determine the urgency/priority level ('low', 'medium', 'high', 'critical'):
+   - Critical: Severe threats to life, extreme utility outage affecting entire towns for days (e.g., winter heating failure), active corruption, or danger to child safety.
+   - High: Pressing infrastructure or utility breakdowns (e.g., no water for days, major road blocks), high-priority welfare denials.
+   - Medium: General complaints (e.g., school repair requests, clinic queue optimization, typical road repairs).
+   - Low: Long-term improvement proposals (e.g., parks, tree planting, standard suggestions).
+
+3. Detect the customer sentiment:
+   - 'neutral': Objective description of the facts.
+   - 'frustrated': Customer expresses sadness, annoyance, or bureaucratic fatigue.
+   - 'angry': Customer uses intense language, capitalized text, or expresses severe anger.
+   - 'desperate': Customer expresses helplessness, extreme distress, or pleads for survival/basic rights.
+
+4. Generate a concise 1-2 sentence summary of the issue. The summary MUST be in UZBEK so that the Hokim can understand it instantly and clearly, regardless of what language the citizen used to write. Translate and summarize the core complaint, who is affected, and what is requested.
+
+5. Match the issue to the most relevant department ID:
+   - 'dept_infrastructure': Landscaping, paving, roads.
+   - 'dept_utilities': Gas, electricity, water, power, heating, waste.
+   - 'dept_social': Welfare, aid, low-income, disability.
+   - 'dept_healthcare': Clinics, hospitals, medicine.
+   - 'dept_education': Schools, kindergartens, textbooks.
+   - 'dept_environment': Ecology, green shield, forestry.
+
+6. Safety & Inappropriate content check (18+ content, vulgarity, swearing, swearing words, insults):
+   - Analyze the text carefully. If the text contains any adult/sensual/sexual/18+ content, swearing words, vulgarity, swearing expressions, insults, hate speech, or abuse ("18+ ga oid, uyatsiz, so'kinish, haqorat, behayo so'zlar yoki gaplar"), set \`isFlaggedInappropriate\` to \`true\`. Otherwise set it to \`false\`.
+
+Return strict JSON matching the requested schema. Do not include markdown formatting or wrapping outside the JSON.`;
+
+  try {
+    // Call Gemini 3.5 Flash for rapid, accurate JSON extraction
+    const response = await client.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: text,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.1, // low temperature for precise classification
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            category: {
+              type: Type.STRING,
+              description: "Must be a standardized category name in Uzbek. Re-use one of the existing categories if it matches semantically, otherwise output a new concise capitalized 1-2 words Uzbek category name representing the core issue.",
+            },
+            urgency: {
+              type: Type.STRING,
+              description: "Must be exactly one of: low, medium, high, critical",
+            },
+            sentiment: {
+              type: Type.STRING,
+              description: "Must be exactly one of: neutral, frustrated, angry, desperate",
+            },
+            summary: {
+              type: Type.STRING,
+              description: "Short 1-2 sentence summary of the appeal in Uzbek language.",
+            },
+            suggested_department: {
+              type: Type.STRING,
+              description: "Must be exactly one of: dept_infrastructure, dept_utilities, dept_social, dept_healthcare, dept_education, dept_environment",
+            },
+            isFlaggedInappropriate: {
+              type: Type.BOOLEAN,
+              description: "True if the text contains 18+ vulgarity, swearing, swearing words, or insults (uyatsiz, so'kinish, haqorat, behayo gaplar). Otherwise false."
+            }
+          },
+          required: ["category", "urgency", "sentiment", "summary", "suggested_department", "isFlaggedInappropriate"],
+        },
+      },
+    });
+
+    const responseText = response.text?.trim();
+    if (!responseText) {
+      console.error("Gemini returned an empty response.");
+      return defaultFallback;
+    }
+
+    // Strip markdown fence blocks if present
+    let jsonStr = responseText;
+    if (jsonStr.startsWith("```json")) {
+      jsonStr = jsonStr.substring(7);
+    }
+    if (jsonStr.startsWith("```")) {
+      jsonStr = jsonStr.substring(3);
+    }
+    if (jsonStr.endsWith("```")) {
+      jsonStr = jsonStr.substring(0, jsonStr.length - 3);
+    }
+    jsonStr = jsonStr.trim();
+
+    const parsed = JSON.parse(jsonStr);
+
+    const validUrgencies: UrgencyLevel[] = ["low", "medium", "high", "critical"];
+    const validSentiments: SentimentType[] = ["neutral", "frustrated", "angry", "desperate"];
+    const validDepts = ["dept_infrastructure", "dept_utilities", "dept_social", "dept_healthcare", "dept_education", "dept_environment"];
+
+    const category = parsed.category ? parsed.category.trim() : "Boshqa muammolar";
+
+    const urgency: UrgencyLevel = validUrgencies.includes(parsed.urgency?.toLowerCase())
+      ? parsed.urgency.toLowerCase()
+      : "medium";
+
+    const sentiment: SentimentType = validSentiments.includes(parsed.sentiment?.toLowerCase())
+      ? parsed.sentiment.toLowerCase()
+      : "neutral";
+
+    const suggested_department = validDepts.includes(parsed.suggested_department)
+      ? parsed.suggested_department
+      : "dept_utilities";
+
+    return {
+      category,
+      urgency,
+      sentiment,
+      summary: parsed.summary || defaultFallback.summary,
+      suggested_department,
+      isFlaggedInappropriate: !!parsed.isFlaggedInappropriate
+    };
+  } catch (error) {
+    console.error("Error analyzing appeal text with Gemini:", error);
+    // In case of any API error, return the graceful fallback
+    return defaultFallback;
+  }
+}
+
+export async function translateAppealContent(
+  description: string,
+  aiSummary: string,
+  category: string,
+  publicResponse?: string
+): Promise<MultiLanguageTranslation> {
+  const defaultFallback: MultiLanguageTranslation = {
+    uz: { description, aiSummary, category, publicResponse },
+    kaa: { description, aiSummary, category, publicResponse },
+    ru: { description, aiSummary, category, publicResponse },
+    en: { description, aiSummary, category, publicResponse }
+  };
+
+  const client = getAiClient();
+  if (!client) {
+    return defaultFallback;
+  }
+
+  const systemInstruction = `You are a professional multilingual translator specialized in public sector services, specifically for the local government (Hokimiyat) of Shomanay District in Karakalpakstan, Uzbekistan.
+Your task is to translate and grammatically correct the provided appeal content into four languages:
+1. Uzbek (uz)
+2. Karakalpak (kaa)
+3. Russian (ru)
+4. English (en)
+
+The content consists of:
+- description: The citizen's statement (which might have grammatical errors or colloquial phrasing in its original language). Correct any spelling or grammatical errors, make it flow naturally, but preserve the exact meaning, tone, and details (names, phone numbers, specific locations).
+- aiSummary: A concise 1-2 sentence summary of the appeal.
+- category: The topic/category of the appeal.
+- publicResponse: (Optional) The administrator's response to the citizen. If provided, translate and correct it elegantly. If not provided or empty, return an empty string for publicResponse.
+
+You must return a strict JSON object that contains the translated fields for all 4 languages. Ensure the translations are highly professional, natural, and free of grammatical errors.
+
+JSON Schema:
+{
+  "uz": {
+    "description": "...",
+    "aiSummary": "...",
+    "category": "...",
+    "publicResponse": "..."
+  },
+  "kaa": {
+    "description": "...",
+    "aiSummary": "...",
+    "category": "...",
+    "publicResponse": "..."
+  },
+  "ru": {
+    "description": "...",
+    "aiSummary": "...",
+    "category": "...",
+    "publicResponse": "..."
+  },
+  "en": {
+    "description": "...",
+    "aiSummary": "...",
+    "category": "...",
+    "publicResponse": "..."
+  }
+}
+
+Do not include any markdown formatting or extra text outside of the JSON block.`;
+
+  const inputPayload = {
+    description,
+    aiSummary,
+    category,
+    publicResponse: publicResponse || ""
+  };
+
+  try {
+    const response = await client.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: JSON.stringify(inputPayload),
+      config: {
+        systemInstruction,
+        temperature: 0.1,
+        responseMimeType: "application/json"
+      }
+    });
+
+    const responseText = response.text?.trim();
+    if (!responseText) {
+      return defaultFallback;
+    }
+
+    let jsonStr = responseText;
+    if (jsonStr.startsWith("```json")) {
+      jsonStr = jsonStr.substring(7);
+    }
+    if (jsonStr.startsWith("```")) {
+      jsonStr = jsonStr.substring(3);
+    }
+    if (jsonStr.endsWith("```")) {
+      jsonStr = jsonStr.substring(0, jsonStr.length - 3);
+    }
+    jsonStr = jsonStr.trim();
+
+    const parsed = JSON.parse(jsonStr) as MultiLanguageTranslation;
+    return parsed;
+  } catch (error) {
+    console.error("Error in translateAppealContent:", error);
+    return defaultFallback;
+  }
+}
+
+export interface ChatMessage {
+  role: "user" | "model";
+  text: string;
+}
+
+export async function answerChatQuestion(userMessage: string, history: ChatMessage[] = []): Promise<string> {
+  const client = getAiClient();
+  if (!client) {
+    return "Tizimda sun'iy intellekt xizmati hozircha faollashtirilmagan yoki API kalit topilmadi.";
+  }
+
+  const systemInstruction = `You are the official AI Assistant for the Smart Murojaat portal of Shomanay District Hokimiyat (regional government) in Karakalpakstan, Uzbekistan.
+Your absolute duty is to assist citizens and municipal administrators (Hokimiyat workers) with questions strictly regarding:
+1. How to submit citizen appeals ('murojaat'), how the dynamic AI classification works, and how to track them.
+2. Appeal states/statuses in the system: 'New' (Yangi), 'Under Review' (Ko'rib chiqilmoqda), 'In Progress' (Jarayonda), 'Postponed' (Keyinga qoldirilgan / Keyinga qoldirish), 'Problem Solved' (Muammo hal qilindi), 'Rejected' (Rad etildi), and 'Unresolvable' (Muammo hal qilinib bo'linmaydi).
+3. The responsibilities of municipal departments: Infrastructure (dept_infrastructure), Utilities (dept_utilities), Social Services (dept_social), Healthcare (dept_healthcare), Education (dept_education), and Environment (dept_environment).
+4. Local neighborhood (Mahalla) issues, local infrastructure complaints (potholes, streetlights, gas pressure, electrical outages, drinking water shortage, public trash) and how citizens can report them.
+5. Common civil service, governor duties, or portal operations in Shomanay district.
+
+CRITICAL INSTRUCTION:
+If the user's message is NOT related to the Smart Murojaat portal, municipal appeals, local infrastructure/utilities, public services, or governor/Hokimiyat duties in Shomanay, you MUST politely but firmly refuse to answer. For example, if they ask for programming code, math help, cooking recipes, general jokes, pop culture, global news, write writing poetry, general historical trivia of other countries, or poems, write: "Kechirasiz, men faqat Smart Murojaat portali, kommunal va infratuzilma muammolari yoki tuman hokimligi faoliyatiga doir savollarga javob bera olaman." (or the equivalent in the language of the prompt: Russian, Karakalpak, English). Keep it short and polite. Do not answer their question under any circumstances if it is outside of these boundaries.`;
+
+  try {
+    const contents: any[] = [];
+    for (const msg of history) {
+      contents.push({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.text }]
+      });
+    }
+    contents.push({
+      role: "user",
+      parts: [{ text: userMessage }]
+    });
+
+    const response = await client.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.3,
+      }
+    });
+
+    return response.text || "Kechirasiz, javob olishda xatolik yuz berdi.";
+  } catch (error) {
+    console.error("Error in answerChatQuestion:", error);
+    return "Tizimda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.";
+  }
+}
+
